@@ -2,11 +2,137 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mein achtsamer Wochenkalender</title>
+
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f6f5f2;
+      margin: 0;
+      padding: 16px;
+      color: #333;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 0.9em;
+      color: #666;
+      margin-bottom: 24px;
+    }
+
+    .week {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .day {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    .day-title {
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .columns {
+      display: flex;
+      gap: 10px;
+    }
+
+    .column {
+      flex: 1;
+      background: #f0f0ed;
+      border-radius: 10px;
+      padding: 10px;
+      min-height: 40px;
+      font-size: 0.9em;
+      color: #555;
+    }
+
+    .left {
+      background: #eaf3ef;
+    }
+
+    .right {
+      background: #f3efe7;
+    }
+  </style>
 </head>
+
 <body>
 
-  <h1>Test: Seite rendert korrekt 🎉</h1>
+  <h1>Mein achtsamer Wochenkalender</h1>
+  <div class="subtitle">Links das, was ich tue · rechts das, was ich im Blick behalte</div>
+
+  <div class="week">
+
+    <div class="day">
+      <div class="day-title">Montag</div>
+      <div class="columns">
+        <div class="column left"></div>
+        <div class="column right"></div>
+      </div>
+    </div>
+
+    <div class="day">
+      <div class="day-title">Dienstag</div>
+      <div class="columns">
+        <div class="column left"></div>
+        <div class="column right"></div>
+      </div>
+    </div>
+
+    <div class="day">
+      <div class="day-title">Mittwoch</div>
+      <div class="columns">
+        <div class="column left"></div>
+        <div class="column right"></div>
+      </div>
+    </div>
+
+    <div class="day">
+      <div class="day-title">Donnerstag</div>
+      <div class="columns">
+        <div class="column left"></div>
+        <div class="column right"></div>
+      </div>
+    </div>
+
+    <div class="day">
+      <div class="day-title">Freitag</div>
+      <div class="columns">
+        <div class="column left"></div>
+        <div class="column right"></div>
+      </div>
+    </div>
+
+    <div class="day">
+      <div class="day-title">Samstag</div>
+      <div class="columns">
+        <div class="column left"></div>
+        <div class="column right"></div>
+      </div>
+    </div>
+
+    <div class="day">
+      <div class="day-title">Sonntag</div>
+      <div class="columns">
+        <div class="column left"></div>
+        <div class="column right"></div>
+      </div>
+    </div>
+
+  </div>
 
 </body>
 </html>
