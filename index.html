@@ -51,7 +51,6 @@
 
     .column {
       flex: 1;
-      background: #f0f0ed;
       border-radius: 10px;
       padding: 10px;
       min-height: 40px;
@@ -60,11 +59,16 @@
     }
 
     .left {
-      background: #eaf3ef;
+      background: #fff9c4; /* zartes Gelb für ICH / Selbstfürsorge */
     }
 
     .right {
-      background: #f3efe7;
+      background: #e0f7fa; /* sanftes Blau für Blick auf andere / Info */
+    }
+
+    .column[contenteditable="true"] {
+      outline: 1px dashed #ccc;
+      padding: 8px;
     }
   </style>
 </head>
@@ -76,59 +80,66 @@
 
   <div class="week">
 
+    <!-- Montag -->
     <div class="day">
       <div class="day-title">Montag</div>
       <div class="columns">
-        <div class="column left"></div>
-        <div class="column right"></div>
+        <div class="column left" contenteditable="true">Hier kommt, was ich tue</div>
+        <div class="column right" contenteditable="true">Hier kommt, was ich im Blick behalte</div>
       </div>
     </div>
 
+    <!-- Dienstag -->
     <div class="day">
       <div class="day-title">Dienstag</div>
       <div class="columns">
-        <div class="column left"></div>
-        <div class="column right"></div>
+        <div class="column left" contenteditable="true">Hier kommt, was ich tue</div>
+        <div class="column right" contenteditable="true">Hier kommt, was ich im Blick behalte</div>
       </div>
     </div>
 
+    <!-- Mittwoch -->
     <div class="day">
       <div class="day-title">Mittwoch</div>
       <div class="columns">
-        <div class="column left"></div>
-        <div class="column right"></div>
+        <div class="column left" contenteditable="true">Hier kommt, was ich tue</div>
+        <div class="column right" contenteditable="true">Hier kommt, was ich im Blick behalte</div>
       </div>
     </div>
 
+    <!-- Donnerstag -->
     <div class="day">
       <div class="day-title">Donnerstag</div>
       <div class="columns">
-        <div class="column left"></div>
-        <div class="column right"></div>
+        <div class="column left" contenteditable="true">Hier kommt, was ich tue</div>
+        <div class="column right" contenteditable="true">Hier kommt, was ich im Blick behalte</div>
       </div>
     </div>
 
+    <!-- Freitag -->
     <div class="day">
       <div class="day-title">Freitag</div>
       <div class="columns">
-        <div class="column left"></div>
-        <div class="column right"></div>
+        <div class="column left" contenteditable="true">Hier kommt, was ich tue</div>
+        <div class="column right" contenteditable="true">Hier kommt, was ich im Blick behalte</div>
       </div>
     </div>
 
+    <!-- Samstag -->
     <div class="day">
       <div class="day-title">Samstag</div>
       <div class="columns">
-        <div class="column left"></div>
-        <div class="column right"></div>
+        <div class="column left" contenteditable="true">Hier kommt, was ich tue</div>
+        <div class="column right" contenteditable="true">Hier kommt, was ich im Blick behalte</div>
       </div>
     </div>
 
+    <!-- Sonntag -->
     <div class="day">
       <div class="day-title">Sonntag</div>
       <div class="columns">
-        <div class="column left"></div>
-        <div class="column right"></div>
+        <div class="column left" contenteditable="true">Hier kommt, was ich tue</div>
+        <div class="column right" contenteditable="true">Hier kommt, was ich im Blick behalte</div>
       </div>
     </div>
 
