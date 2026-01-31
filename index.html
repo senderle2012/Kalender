@@ -63,12 +63,63 @@
     }
 
     .right {
-      background: #e0f7fa; /* sanftes Blau für Blick auf andere / Info */
+      background: #e0f7fa; /* sanftes Blau für Info / andere betrifft es */
     }
 
     .column[contenteditable="true"] {
       outline: 1px dashed #ccc;
       padding: 8px;
+    }
+
+    /* Plus-Button */
+    #addButton {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: #2f7d7b;
+      color: white;
+      font-size: 2rem;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    /* Modal */
+    #modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    #modal > div {
+      background: white;
+      border-radius: 16px;
+      padding: 16px;
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    input, select, textarea, button {
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      font-size: 0.9rem;
+    }
+
+    #saveTask {
+      background: #2f7d7b;
+      color: white;
+      border: none;
     }
   </style>
 </head>
@@ -144,6 +195,90 @@
     </div>
 
   </div>
+
+  <!-- Plus-Button -->
+  <button id="addButton">+</button>
+
+  <!-- Popup Modal -->
+  <div id="modal">
+    <div>
+      <h2>Neue Aufgabe</h2>
+
+      <label>Titel</label>
+      <input id="taskTitle" placeholder="z. B. Yoga, Kinderarzt" />
+
+      <label>Kategorie</label>
+      <select id="taskCategory">
+        <option value="selfcare">Selbstfürsorge</option>
+        <option value="health">Gesundheit</option>
+        <option value="household">Haushalt</option>
+        <option value="finance">Finanzen</option>
+        <option value="creative">Kreatives</option>
+        <option value="work">Arbeit</option>
+        <option value="family">Familie</option>
+        <option value="volunteer">Ehrenamt</option>
+        <option value="friends">Freunde</option>
+        <option value="child-t">Kind T</option>
+        <option value="child-n">Kind N</option>
+      </select>
+
+      <label>Typ</label>
+      <select id="taskType">
+        <option value="todo">Mein Todo</option>
+        <option value="info">Info / andere betrifft es</option>
+      </select>
+
+      <label>Private Notiz</label>
+      <textarea id="taskNote" rows="3"></textarea>
+
+      <label><input type="checkbox" id="taskDone"/> Erledigt</label>
+
+      <div style="display:flex; gap:8px;">
+        <button id="saveTask" style="flex:1;">Speichern</button>
+        <button id="cancelTask" style="flex:1; background:#ccc;">Abbrechen</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const addButton = document.getElementById('addButton');
+    const modal = document.getElementById('modal');
+    const saveTask = document.getElementById('saveTask');
+    const cancelTask = document.getElementById('cancelTask');
+
+    addButton.onclick = () => {
+      modal.style.display = 'flex';
+    };
+
+    cancelTask.onclick = () => {
+      modal.style.display = 'none';
+    };
+
+    saveTask.onclick = () => {
+      const title = document.getElementById('taskTitle').value;
+      const type = document.getElementById('taskType').value;
+
+      if(!title) return alert("Bitte einen Titel eingeben");
+
+      const div = document.createElement('div');
+      div.textContent = title;
+      div.style.padding = '6px 8px';
+      div.style.borderRadius = '8px';
+      div.style.marginTop = '6px';
+      div.style.background = '#ffe082';
+      div.style.cursor = 'pointer';
+
+      div.onclick = () => alert("Popup zum Bearbeiten kommt bald!");
+
+      // Spalte wählen
+      const column = type === 'info' ? document.querySelector('.right') : document.querySelector('.left');
+      column.appendChild(div);
+
+      modal.style.display = 'none';
+      document.getElementById('taskTitle').value = '';
+      document.getElementById('taskNote').value = '';
+    };
+  </script>
 
 </body>
 </html>
