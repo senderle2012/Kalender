@@ -1,284 +1,313 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mein achtsamer Wochenkalender</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mein achtsamer Wochenkalender – Version 14</title>
 
-  <style>
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #f6f5f2;
-      margin: 0;
-      padding: 16px;
-      color: #333;
-    }
+<style>
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #f6f5f2;
+  margin: 0;
+  padding: 16px;
+  color: #333;
+}
 
-    h1 {
-      text-align: center;
-      margin-bottom: 8px;
-    }
+h1 {
+  text-align: center;
+  margin-bottom: 8px;
+}
 
-    .subtitle {
-      text-align: center;
-      font-size: 0.9em;
-      color: #666;
-      margin-bottom: 24px;
-    }
+.subtitle {
+  text-align: center;
+  font-size: 0.9em;
+  color: #666;
+  margin-bottom: 24px;
+}
 
-    .week {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
+.week {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
 
-    .day {
-      background: #ffffff;
-      border-radius: 14px;
-      padding: 12px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    }
+.day {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
 
-    .day-title {
-      font-weight: 600;
-      margin-bottom: 10px;
-    }
+.day-title {
+  font-weight: 600;
+  margin-bottom: 10px;
+}
 
-    .columns {
-      display: flex;
-      gap: 10px;
-    }
+.columns {
+  display: flex;
+  gap: 10px;
+}
 
-    .column {
-      flex: 1;
-      border-radius: 10px;
-      padding: 10px;
-      min-height: 40px;
-      font-size: 0.9em;
-      color: #555;
-    }
+.column {
+  flex: 1;
+  border-radius: 10px;
+  padding: 10px;
+  min-height: 40px;
+  font-size: 0.9em;
+  color: #555;
+}
 
-    .left {
-      background: #fff9c4; /* zartes Gelb für ICH / Selbstfürsorge */
-    }
+.left {
+  background: #fff9c4; /* zartes Gelb */
+}
 
-    .right {
-      background: #e0f7fa; /* sanftes Blau für Info / andere betrifft es */
-    }
+.right {
+  background: #e0f7fa; /* sanftes Blau */
+}
 
-    .column[contenteditable="true"] {
-      outline: 1px dashed #ccc;
-      padding: 8px;
-    }
+.column[contenteditable="true"] {
+  outline: 1px dashed #ccc;
+  padding: 8px;
+}
 
-    /* Plus-Button */
-    #addButton {
-      position: fixed;
-      bottom: 16px;
-      right: 16px;
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      background: #2f7d7b;
-      color: white;
-      font-size: 2rem;
-      border: none;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    }
+/* Plus-Button */
+#addButton {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #2f7d7b;
+  color: white;
+  font-size: 2rem;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
 
-    /* Modal */
-    #modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.4);
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-    }
+/* Modal */
+#modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
 
-    #modal > div {
-      background: white;
-      border-radius: 16px;
-      padding: 16px;
-      width: 100%;
-      max-width: 420px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
+#modal > div {
+  background: white;
+  border-radius: 16px;
+  padding: 16px;
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
 
-    input, select, textarea, button {
-      padding: 8px;
-      border-radius: 8px;
-      border: 1px solid #ddd;
-      font-size: 0.9rem;
-    }
+input, select, textarea, button {
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 0.9rem;
+}
 
-    #saveTask {
-      background: #2f7d7b;
-      color: white;
-      border: none;
-    }
-  </style>
+#saveTask {
+  background: #2f7d7b;
+  color: white;
+  border: none;
+}
+</style>
 </head>
 
 <body>
 
-  <h1>Mein achtsamer Wochenkalender</h1>
-  <div class="subtitle">Links das, was ich tue · rechts das, was ich im Blick behalte</div>
+<h1>Mein achtsamer Wochenkalender</h1>
+<div class="subtitle">Links das, was ich tue · rechts das, was ich im Blick behalte</div>
 
-  <div class="week">
-
-    <!-- Montag -->
-    <div class="day">
-      <div class="day-title">Montag</div>
-      <div class="columns">
-        <div class="column left" contenteditable="true">Hier kommt, was ich tue</div>
-        <div class="column right" contenteditable="true">Hier kommt, was ich im Blick behalte</div>
-      </div>
-    </div>
-
-    <!-- Dienstag -->
-    <div class="day">
-      <div class="day-title">Dienstag</div>
-      <div class="columns">
-        <div class="column left" contenteditable="true">Hier kommt, was ich tue</div>
-        <div class="column right" contenteditable="true">Hier kommt, was ich im Blick behalte</div>
-      </div>
-    </div>
-
-    <!-- Mittwoch -->
-    <div class="day">
-      <div class="day-title">Mittwoch</div>
-      <div class="columns">
-        <div class="column left" contenteditable="true">Hier kommt, was ich tue</div>
-        <div class="column right" contenteditable="true">Hier kommt, was ich im Blick behalte</div>
-      </div>
-    </div>
-
-    <!-- Donnerstag -->
-    <div class="day">
-      <div class="day-title">Donnerstag</div>
-      <div class="columns">
-        <div class="column left" contenteditable="true">Hier kommt, was ich tue</div>
-        <div class="column right" contenteditable="true">Hier kommt, was ich im Blick behalte</div>
-      </div>
-    </div>
-
-    <!-- Freitag -->
-    <div class="day">
-      <div class="day-title">Freitag</div>
-      <div class="columns">
-        <div class="column left" contenteditable="true">Hier kommt, was ich tue</div>
-        <div class="column right" contenteditable="true">Hier kommt, was ich im Blick behalte</div>
-      </div>
-    </div>
-
-    <!-- Samstag -->
-    <div class="day">
-      <div class="day-title">Samstag</div>
-      <div class="columns">
-        <div class="column left" contenteditable="true">Hier kommt, was ich tue</div>
-        <div class="column right" contenteditable="true">Hier kommt, was ich im Blick behalte</div>
-      </div>
-    </div>
-
-    <!-- Sonntag -->
-    <div class="day">
-      <div class="day-title">Sonntag</div>
-      <div class="columns">
-        <div class="column left" contenteditable="true">Hier kommt, was ich tue</div>
-        <div class="column right" contenteditable="true">Hier kommt, was ich im Blick behalte</div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- Plus-Button -->
-  <button id="addButton">+</button>
-
-  <!-- Popup Modal -->
-  <div id="modal">
-    <div>
-      <h2>Neue Aufgabe</h2>
-
-      <label>Titel</label>
-      <input id="taskTitle" placeholder="z. B. Yoga, Kinderarzt" />
-
-      <label>Kategorie</label>
-      <select id="taskCategory">
-        <option value="selfcare">Selbstfürsorge</option>
-        <option value="health">Gesundheit</option>
-        <option value="household">Haushalt</option>
-        <option value="finance">Finanzen</option>
-        <option value="creative">Kreatives</option>
-        <option value="work">Arbeit</option>
-        <option value="family">Familie</option>
-        <option value="volunteer">Ehrenamt</option>
-        <option value="friends">Freunde</option>
-        <option value="child-t">Kind T</option>
-        <option value="child-n">Kind N</option>
-      </select>
-
-      <label>Typ</label>
-      <select id="taskType">
-        <option value="todo">Mein Todo</option>
-        <option value="info">Info / andere betrifft es</option>
-      </select>
-
-      <label>Private Notiz</label>
-      <textarea id="taskNote" rows="3"></textarea>
-
-      <label><input type="checkbox" id="taskDone"/> Erledigt</label>
-
-      <div style="display:flex; gap:8px;">
-        <button id="saveTask" style="flex:1;">Speichern</button>
-        <button id="cancelTask" style="flex:1; background:#ccc;">Abbrechen</button>
-      </div>
+<div class="week">
+  <!-- Tage -->
+  <div class="day">
+    <div class="day-title">Montag</div>
+    <div class="columns">
+      <div class="column left" contenteditable="true"></div>
+      <div class="column right" contenteditable="true"></div>
     </div>
   </div>
+  <div class="day">
+    <div class="day-title">Dienstag</div>
+    <div class="columns">
+      <div class="column left" contenteditable="true"></div>
+      <div class="column right" contenteditable="true"></div>
+    </div>
+  </div>
+  <div class="day">
+    <div class="day-title">Mittwoch</div>
+    <div class="columns">
+      <div class="column left" contenteditable="true"></div>
+      <div class="column right" contenteditable="true"></div>
+    </div>
+  </div>
+  <div class="day">
+    <div class="day-title">Donnerstag</div>
+    <div class="columns">
+      <div class="column left" contenteditable="true"></div>
+      <div class="column right" contenteditable="true"></div>
+    </div>
+  </div>
+  <div class="day">
+    <div class="day-title">Freitag</div>
+    <div class="columns">
+      <div class="column left" contenteditable="true"></div>
+      <div class="column right" contenteditable="true"></div>
+    </div>
+  </div>
+  <div class="day">
+    <div class="day-title">Samstag</div>
+    <div class="columns">
+      <div class="column left" contenteditable="true"></div>
+      <div class="column right" contenteditable="true"></div>
+    </div>
+  </div>
+  <div class="day">
+    <div class="day-title">Sonntag</div>
+    <div class="columns">
+      <div class="column left" contenteditable="true"></div>
+      <div class="column right" contenteditable="true"></div>
+    </div>
+  </div>
+</div>
 
-  <script>
-    const addButton = document.getElementById('addButton');
-    const modal = document.getElementById('modal');
-    const saveTask = document.getElementById('saveTask');
-    const cancelTask = document.getElementById('cancelTask');
+<!-- Plus-Button -->
+<button id="addButton">+</button>
 
-    addButton.onclick = () => {
-      modal.style.display = 'flex';
-    };
+<!-- Modal Popup -->
+<div id="modal">
+  <div>
+    <h2>Aufgabe erstellen / bearbeiten</h2>
 
-    cancelTask.onclick = () => {
-      modal.style.display = 'none';
-    };
+    <label>Titel</label>
+    <input id="taskTitle" placeholder="z. B. Yoga, Kinderarzt" />
 
-    saveTask.onclick = () => {
-      const title = document.getElementById('taskTitle').value;
-      const type = document.getElementById('taskType').value;
+    <label>Kategorie</label>
+    <select id="taskCategory">
+      <option value="selfcare">Selbstfürsorge</option>
+      <option value="health">Gesundheit</option>
+      <option value="household">Haushalt</option>
+      <option value="finance">Finanzen</option>
+      <option value="creative">Kreatives</option>
+      <option value="work">Arbeit</option>
+      <option value="family">Familie</option>
+      <option value="volunteer">Ehrenamt</option>
+      <option value="friends">Freunde</option>
+      <option value="child-t">Kind T</option>
+      <option value="child-n">Kind N</option>
+    </select>
 
-      if(!title) return alert("Bitte einen Titel eingeben");
+    <label>Typ</label>
+    <select id="taskType">
+      <option value="todo">Mein Todo</option>
+      <option value="info">Info / andere betrifft es</option>
+    </select>
 
-      const div = document.createElement('div');
-      div.textContent = title;
-      div.style.padding = '6px 8px';
-      div.style.borderRadius = '8px';
-      div.style.marginTop = '6px';
-      div.style.background = '#ffe082';
-      div.style.cursor = 'pointer';
+    <label>Private Notiz</label>
+    <textarea id="taskNote" rows="3"></textarea>
 
-      div.onclick = () => alert("Popup zum Bearbeiten kommt bald!");
+    <label><input type="checkbox" id="taskDone"/> Erledigt</label>
 
-      // Spalte wählen
-      const column = type === 'info' ? document.querySelector('.right') : document.querySelector('.left');
-      column.appendChild(div);
+    <div style="display:flex; gap:8px;">
+      <button id="saveTask" style="flex:1;">Speichern</button>
+      <button id="cancelTask" style="flex:1; background:#ccc;">Abbrechen</button>
+    </div>
+  </div>
+</div>
 
-      modal.style.display = 'none';
-      document.getElementById('taskTitle').value = '';
-      document.getElementById('taskNote').value = '';
-    };
-  </script>
+<script>
+const addButton = document.getElementById('addButton');
+const modal = document.getElementById('modal');
+const saveTask = document.getElementById('saveTask');
+const cancelTask = document.getElementById('cancelTask');
+
+let activeTask = null;
+let draggedTask = null;
+
+addButton.onclick = () => { openModal(); };
+cancelTask.onclick = () => { modal.style.display = 'none'; };
+
+function openModal(task = null){
+  activeTask = task;
+  modal.style.display = 'flex';
+
+  document.getElementById('taskTitle').value = task?.dataset.title || '';
+  document.getElementById('taskCategory').value = task?.dataset.category || 'selfcare';
+  document.getElementById('taskType').value = task?.dataset.type || 'todo';
+  document.getElementById('taskNote').value = task?.dataset.note || '';
+  document.getElementById('taskDone').checked = task?.dataset.done === "true";
+}
+
+saveTask.onclick = () => {
+  const title = document.getElementById('taskTitle').value;
+  const type = document.getElementById('taskType').value;
+  const category = document.getElementById('taskCategory').value;
+  const note = document.getElementById('taskNote').value;
+  const done = document.getElementById('taskDone').checked;
+
+  if(!title) return alert("Bitte einen Titel eingeben");
+
+  let task = activeTask;
+
+  if(!task){
+    task = document.createElement('div');
+    task.style.padding = '6px 8px';
+    task.style.borderRadius = '8px';
+    task.style.marginTop = '6px';
+    task.style.cursor = 'pointer';
+    task.draggable = true;
+
+    task.ondragstart = e => { draggedTask = task; e.dataTransfer.effectAllowed = 'move'; };
+    task.ondragend = () => { draggedTask = null; };
+    task.onclick = () => openModal(task);
+  }
+
+  task.textContent = title;
+  task.dataset.title = title;
+  task.dataset.category = category;
+  task.dataset.type = type;
+  task.dataset.note = note;
+  task.dataset.done = done;
+
+  task.style.background = done ? '#cfcfcf' : '#ffe082';
+  task.style.textDecoration = done ? 'line-through' : 'none';
+  task.style.color = done ? '#777' : '#333';
+
+  const column = type === 'info' ? document.querySelector('.right') : document.querySelector('.left');
+  column.appendChild(task);
+  reorderColumn(column);
+
+  modal.style.display = 'none';
+};
+
+function reorderColumn(column){
+  const tasks = [...column.children];
+  const doneTasks = tasks.filter(t => t.dataset.done === "true");
+  const openTasks = tasks.filter(t => t.dataset.done !== "true");
+  [...openTasks, ...doneTasks].forEach(t => column.appendChild(t));
+}
+
+document.querySelectorAll('.column').forEach(col => {
+  col.ondragover = e => e.preventDefault();
+  col.ondrop = e => {
+    if(draggedTask){
+      col.appendChild(draggedTask);
+      reorderColumn(col);
+    }
+  };
+});
+</script>
 
 </body>
 </html>
