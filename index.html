@@ -1,11 +1,8 @@
-<!DOCTYPE html>
-<html lang="de">
+<!DOCTYPE html><html lang="de">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Achtsamer Wochenkalender</title>
-
-<style>
+<title>Achtsamer Wochenkalender</title><style>
 :root{
   --bg:#f6f7f5;
   --card:#ffffff;
@@ -34,16 +31,8 @@ header{
   align-items:center;
 }
 
-header h1{
-  font-size:1.1rem;
-  margin:0;
-}
-
-header button{
-  background:none;
-  border:none;
-  font-size:1.4rem;
-}
+header h1{ font-size:1.1rem; margin:0; }
+header button{ background:none; border:none; font-size:1.4rem; }
 
 .calendar{
   padding:12px;
@@ -52,16 +41,8 @@ header button{
   gap:12px;
 }
 
-.column{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-}
-
-.column h3{
-  font-size:0.85rem;
-  color:var(--muted);
-}
+.column{ display:flex; flex-direction:column; gap:8px; }
+.column h3{ font-size:0.85rem; color:var(--muted); }
 
 .day{
   background:var(--card);
@@ -70,24 +51,17 @@ header button{
   min-height:90px;
 }
 
-.day-title{
-  font-size:0.75rem;
-  color:var(--muted);
-  margin-bottom:6px;
-}
+.day-title{ font-size:0.75rem; color:var(--muted); margin-bottom:6px; }
 
 .task{
   font-size:0.8rem;
   padding:6px 8px;
   border-radius:8px;
   margin-bottom:6px;
-  cursor:pointer;
+  cursor:grab;
 }
 
-.task.done{
-  opacity:0.6;
-  text-decoration:line-through;
-}
+.task.done{ opacity:0.6; text-decoration:line-through; }
 
 .selfcare{ background:var(--selfcare); }
 .health{ background:var(--health); }
@@ -129,48 +103,37 @@ header button{
   flex-direction:column;
   gap:10px;
 }
-</style>
-</head>
-
-<body>
-
-<header>
+</style></head>
+<body><header>
   <button id="prevWeek">⬅️</button>
   <h1 id="weekLabel">Diese Woche</h1>
   <button id="nextWeek">➡️</button>
-</header>
-
-<div class="calendar" id="calendar"></div>
-<button class="add" id="addBtn">+</button>
-
-<div class="modal" id="modal">
+</header><div class="calendar" id="calendar"></div>
+<button class="add" id="addBtn">+</button><div class="modal" id="modal">
   <div class="modal-content">
-    <input id="title" placeholder="Titel">
+    <input id="title" placeholder="Titel"><select id="day"></select>
 
-    <select id="day"></select>
+<select id="area">
+  <option value="left">Meine Todos</option>
+  <option value="right">Im Blick</option>
+</select>
 
-    <select id="area">
-      <option value="left">Meine Todos</option>
-      <option value="right">Im Blick</option>
-    </select>
+<select id="category">
+  <option value="selfcare">🌞 Selbstfürsorge</option>
+  <option value="health">🫀 Gesundheit</option>
+  <option value="work">💼 Arbeit</option>
+  <option value="family">🌿 Familie</option>
+  <option value="household">🏠 Haushalt</option>
+  <option value="finance">💰 Finanzen</option>
+  <option value="creative">🎨 Kreatives</option>
+</select>
 
-    <select id="category">
-      <option value="selfcare">🌞 Selbstfürsorge</option>
-      <option value="health">🫀 Gesundheit</option>
-      <option value="work">💼 Arbeit</option>
-      <option value="family">🌿 Familie</option>
-      <option value="household">🏠 Haushalt</option>
-      <option value="finance">💰 Finanzen</option>
-      <option value="creative">🎨 Kreatives</option>
-    </select>
+<label><input type="checkbox" id="done"> erledigt</label>
 
-    <label><input type="checkbox" id="done"> erledigt</label>
+<button id="saveBtn">Speichern</button>
 
-    <button id="saveBtn">Speichern</button>
   </div>
-</div>
-
-<script>
+</div><script>
 const weekdays=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"];
 const calendar=document.getElementById("calendar");
 const modal=document.getElementById("modal");
@@ -178,6 +141,7 @@ const modal=document.getElementById("modal");
 let currentWeek=0;
 let data={};
 let active=null;
+let dragged=null;
 
 function weekData(){
   if(!data[currentWeek]){
@@ -207,10 +171,26 @@ function render(){
       dayBox.className="day";
       dayBox.innerHTML=`<div class="day-title">${name}</div>`;
 
+      dayBox.ondragover=e=>e.preventDefault();
+      dayBox.ondrop=()=>{
+        if(dragged){
+          dragged.from.splice(dragged.index,1);
+          weekData()[side][i].push(dragged.task);
+          dragged=null;
+          render();
+        }
+      };
+
       weekData()[side][i].forEach(task=>{
         const t=document.createElement("div");
         t.className=`task ${task.category}`+(task.done?" done":"");
         t.textContent=task.title;
+        t.draggable=true;
+
+        t.ondragstart=()=>{
+          dragged={ task, from:weekData()[side][i], index:weekData()[side][i].indexOf(task) };
+        };
+
         t.onclick=()=>{
           active={task,side,i};
           title.value=task.title;
@@ -220,6 +200,7 @@ function render(){
           done.checked=task.done;
           modal.style.display="flex";
         };
+
         dayBox.appendChild(t);
       });
 
@@ -248,7 +229,9 @@ saveBtn.onclick=()=>{
   const d=parseInt(day.value);
 
   if(active){
-    Object.assign(active.task,task);
+    const oldList=weekData()[active.side][active.i];
+    oldList.splice(oldList.indexOf(active.task),1);
+    weekData()[side][d].push(Object.assign(active.task,task));
   }else{
     weekData()[side][d].push(task);
   }
@@ -261,7 +244,5 @@ prevWeek.onclick=()=>{ currentWeek--; render(); };
 nextWeek.onclick=()=>{ currentWeek++; render(); };
 
 render();
-</script>
-
-</body>
+</script></body>
 </html>
