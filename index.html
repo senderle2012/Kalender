@@ -156,6 +156,12 @@ input,select{
       <option value="6">Sonntag</option>
     </select>
 
+    <label>Bereich</label>
+    <select id="area">
+      <option value="left">Meine Todos</option>
+      <option value="right">Im Blick</option>
+    </select>
+
     <label>Kategorie</label>
     <select id="category">
       <option value="selfcare">Selbstfürsorge</option>
@@ -194,7 +200,6 @@ const modal=document.getElementById("modal");
 const addBtn=document.getElementById("addBtn");
 
 let activeTask=null;
-let originalDay=null;
 
 const leftCol=document.createElement("div");
 leftCol.className="column";
@@ -202,22 +207,22 @@ leftCol.innerHTML="<h3>Meine Todos</h3>";
 
 const rightCol=document.createElement("div");
 rightCol.className="column";
-rightCol.innerHTML="<h3>Info / Andere</h3>";
+rightCol.innerHTML="<h3>Im Blick</h3>";
 
 calendar.append(leftCol,rightCol);
 
-weekdays.forEach((name,i)=>{
-  const dayLeft=document.createElement("div");
-  dayLeft.className="day";
-  dayLeft.dataset.day=i;
-  dayLeft.innerHTML=`<div class="day-title">${name}</div>`;
-  leftCol.appendChild(dayLeft);
+function createDays(column){
+  weekdays.forEach((name,i)=>{
+    const day=document.createElement("div");
+    day.className="day";
+    day.dataset.day=i;
+    day.innerHTML=`<div class="day-title">${name}</div>`;
+    column.appendChild(day);
+  });
+}
 
-  const dayRight=document.createElement("div");
-  dayRight.className="day";
-  dayRight.innerHTML=`<div class="day-title">${name}</div>`;
-  rightCol.appendChild(dayRight);
-});
+createDays(leftCol);
+createDays(rightCol);
 
 addBtn.onclick=()=>openModal();
 
@@ -229,14 +234,14 @@ function openModal(task=null){
     title.value=task.dataset.title;
     day.value=task.dataset.day;
     category.value=task.dataset.category;
+    area.value=task.dataset.area;
     done.checked=task.classList.contains("done");
     deleteBtn.style.display="inline-block";
-    originalDay=task.dataset.day;
   }else{
     title.value="";
     done.checked=false;
+    area.value="left";
     deleteBtn.style.display="none";
-    originalDay=null;
   }
 }
 
@@ -265,12 +270,17 @@ saveBtn.onclick=()=>{
 
   task.textContent=`${cfg.icon} ${title.value}`;
   task.style.background=cfg.color;
+
   task.dataset.title=title.value;
   task.dataset.category=category.value;
   task.dataset.day=day.value;
+  task.dataset.area=area.value;
+
   task.classList.toggle("done",done.checked);
 
-  const dayBox = leftCol.querySelector(`.day[data-day='${day.value}']`);
+  const column = area.value==="left" ? leftCol : rightCol;
+  const dayBox = column.querySelector(`.day[data-day='${day.value}']`);
+
   dayBox.appendChild(task);
   reorderDay(dayBox);
 
@@ -280,9 +290,7 @@ saveBtn.onclick=()=>{
 
 deleteBtn.onclick=()=>{
   if(activeTask){
-    const parent=activeTask.parentElement;
     activeTask.remove();
-    reorderDay(parent);
   }
   modal.style.display="none";
   activeTask=null;
