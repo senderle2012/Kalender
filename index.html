@@ -21,8 +21,21 @@ body{
 }
 
 header{
-  padding:14px;
-  text-align:center;
+  padding:12px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+header h1{
+  font-size:1.1rem;
+  margin:0;
+}
+
+header button{
+  background:none;
+  border:none;
+  font-size:1.4rem;
 }
 
 .calendar{
@@ -39,9 +52,9 @@ header{
 }
 
 .column h3{
-  margin:4px 0;
-  font-size:0.9rem;
+  font-size:0.85rem;
   color:var(--muted);
+  margin:4px 0;
 }
 
 .day{
@@ -49,15 +62,10 @@ header{
   border-radius:14px;
   padding:8px;
   min-height:90px;
-  box-shadow:0 2px 6px rgba(0,0,0,0.05);
-}
-
-.day.drag-over{
-  outline:2px dashed #2f7d7b;
 }
 
 .day-title{
-  font-size:0.8rem;
+  font-size:0.75rem;
   color:var(--muted);
   margin-bottom:6px;
 }
@@ -70,16 +78,12 @@ header{
   cursor:grab;
 }
 
-.task.dragging{
-  opacity:0.4;
-}
-
 .task.done{
   opacity:0.6;
   text-decoration:line-through;
 }
 
-button.add{
+.add{
   position:fixed;
   right:16px;
   bottom:16px;
@@ -111,35 +115,15 @@ button.add{
   flex-direction:column;
   gap:10px;
 }
-
-label{
-  font-size:0.8rem;
-  color:var(--muted);
-}
-
-input,select{
-  padding:8px;
-  border-radius:8px;
-  border:1px solid #ddd;
-}
-
-.actions{
-  display:flex;
-  gap:8px;
-}
-
-.save{
-  background:#2f7d7b;
-  color:white;
-  border:none;
-}
 </style>
 </head>
 
 <body>
 
 <header>
-  <h1>Mein achtsamer Wochenkalender</h1>
+  <button id="prevWeek">⬅️</button>
+  <h1 id="weekLabel">Diese Woche</h1>
+  <button id="nextWeek">➡️</button>
 </header>
 
 <div class="calendar" id="calendar"></div>
@@ -149,194 +133,125 @@ input,select{
   <div class="modal-content">
     <h3>Eintrag</h3>
 
-    <label>Titel</label>
-    <input id="title">
+    <input id="title" placeholder="Titel">
 
-    <label>Wochentag</label>
-    <select id="day">
-      <option value="0">Montag</option>
-      <option value="1">Dienstag</option>
-      <option value="2">Mittwoch</option>
-      <option value="3">Donnerstag</option>
-      <option value="4">Freitag</option>
-      <option value="5">Samstag</option>
-      <option value="6">Sonntag</option>
-    </select>
-
-    <label>Bereich</label>
+    <select id="day"></select>
     <select id="area">
       <option value="left">Meine Todos</option>
       <option value="right">Im Blick</option>
     </select>
 
-    <label>Kategorie</label>
-    <select id="category">
-      <option value="selfcare">Selbstfürsorge</option>
-      <option value="health">Gesundheit</option>
-      <option value="work">Arbeit</option>
-      <option value="family">Familie</option>
-      <option value="household">Haushalt</option>
-      <option value="finance">Finanzen</option>
-      <option value="creative">Kreatives</option>
-    </select>
-
     <label><input type="checkbox" id="done"> erledigt</label>
 
-    <div class="actions">
-      <button class="save" id="saveBtn">Speichern</button>
-      <button id="deleteBtn" style="display:none;">Löschen</button>
-    </div>
+    <button id="saveBtn">Speichern</button>
   </div>
 </div>
 
 <script>
 const weekdays=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"];
-
-const categoryConfig={
-  selfcare:{icon:"🌞",color:"#fff3b0"},
-  health:{icon:"💊",color:"#f8d7da"},
-  work:{icon:"💼",color:"#e3f2fd"},
-  family:{icon:"👨‍👩‍👧",color:"#e8f5e9"},
-  household:{icon:"🏡",color:"#e6e0d4"},
-  finance:{icon:"💰",color:"#e8f5e9"},
-  creative:{icon:"🎨",color:"#f3e5f5"}
-};
-
 const calendar=document.getElementById("calendar");
 const modal=document.getElementById("modal");
-const addBtn=document.getElementById("addBtn");
 
+let currentWeek=0;
+let data={};
 let activeTask=null;
-let draggedTask=null;
 
-const leftCol=document.createElement("div");
-leftCol.className="column";
-leftCol.innerHTML="<h3>Meine Todos</h3>";
+function weekData(){
+  if(!data[currentWeek]){
+    data[currentWeek]={ left:Array(7).fill().map(()=>[]), right:Array(7).fill().map(()=>[]) };
+  }
+  return data[currentWeek];
+}
 
-const rightCol=document.createElement("div");
-rightCol.className="column";
-rightCol.innerHTML="<h3>Im Blick</h3>";
+function render(){
+  calendar.innerHTML="";
+  weekLabel.textContent = currentWeek===0 ? "Diese Woche" :
+    currentWeek>0 ? `In ${currentWeek} Woche(n)` : `${Math.abs(currentWeek)} Woche(n) zurück`;
 
-calendar.append(leftCol,rightCol);
+  ["left","right"].forEach(side=>{
+    const col=document.createElement("div");
+    col.className="column";
+    col.innerHTML=`<h3>${side==="left"?"Meine Todos":"Im Blick"}</h3>`;
 
-function createDays(column){
-  weekdays.forEach((name,i)=>{
-    const day=document.createElement("div");
-    day.className="day";
-    day.dataset.day=i;
+    weekdays.forEach((name,i)=>{
+      const day=document.createElement("div");
+      day.className="day";
+      day.innerHTML=`<div class="day-title">${name}</div>`;
 
-    day.innerHTML=`<div class="day-title">${name}</div>`;
+      day.ondragover=e=>e.preventDefault();
+      day.ondrop=()=>{
+        if(dragged){
+          day.appendChild(dragged.el);
+          dragged.from.splice(dragged.index,1);
+          weekData()[side][i].push(dragged.task);
+          dragged=null;
+        }
+      };
 
-    day.addEventListener("dragover",e=>{
-      e.preventDefault();
-      day.classList.add("drag-over");
+      weekData()[side][i].forEach(task=>{
+        const t=document.createElement("div");
+        t.className="task"+(task.done?" done":"");
+        t.textContent=task.title;
+        t.draggable=true;
+
+        t.ondragstart=()=>{
+          dragged={ el:t, task, from:weekData()[side][i], index:weekData()[side][i].indexOf(task) };
+        };
+
+        t.onclick=()=>{
+          activeTask={task,side,i};
+          title.value=task.title;
+          daySel.value=i;
+          area.value=side;
+          done.checked=task.done;
+          modal.style.display="flex";
+        };
+
+        day.appendChild(t);
+      });
+
+      col.appendChild(day);
     });
 
-    day.addEventListener("dragleave",()=>{
-      day.classList.remove("drag-over");
-    });
-
-    day.addEventListener("drop",()=>{
-      day.classList.remove("drag-over");
-      if(draggedTask){
-        day.appendChild(draggedTask);
-        draggedTask.dataset.day=i;
-        draggedTask.dataset.area = column === leftCol ? "left" : "right";
-        reorderDay(day);
-      }
-    });
-
-    column.appendChild(day);
+    calendar.appendChild(col);
   });
 }
 
-createDays(leftCol);
-createDays(rightCol);
+let dragged=null;
 
-addBtn.onclick=()=>openModal();
-
-function openModal(task=null){
+addBtn.onclick=()=>{
+  activeTask=null;
+  title.value="";
+  done.checked=false;
   modal.style.display="flex";
-  activeTask=task;
-
-  if(task){
-    title.value=task.dataset.title;
-    day.value=task.dataset.day;
-    category.value=task.dataset.category;
-    area.value=task.dataset.area;
-    done.checked=task.classList.contains("done");
-    deleteBtn.style.display="inline-block";
-  }else{
-    title.value="";
-    done.checked=false;
-    area.value="left";
-    deleteBtn.style.display="none";
-  }
-}
-
-modal.onclick=e=>{
-  if(e.target===modal) modal.style.display="none";
 };
 
-function reorderDay(dayBox){
-  const tasks=[...dayBox.querySelectorAll(".task")];
-  const open=tasks.filter(t=>!t.classList.contains("done"));
-  const done=tasks.filter(t=>t.classList.contains("done"));
-  [...open,...done].forEach(t=>dayBox.appendChild(t));
-}
-
-function enableDrag(task){
-  task.draggable=true;
-
-  task.addEventListener("dragstart",()=>{
-    draggedTask=task;
-    task.classList.add("dragging");
-  });
-
-  task.addEventListener("dragend",()=>{
-    task.classList.remove("dragging");
-    draggedTask=null;
-  });
-}
+weekdays.forEach((d,i)=>{
+  const o=document.createElement("option");
+  o.value=i;
+  o.textContent=d;
+  day.appendChild(o);
+});
 
 saveBtn.onclick=()=>{
-  if(!title.value) return;
+  const task={ title:title.value, done:done.checked };
+  const side=area.value;
+  const d=parseInt(day.value);
 
-  const cfg=categoryConfig[category.value];
-  let task=activeTask;
-
-  if(!task){
-    task=document.createElement("div");
-    task.className="task";
-    task.onclick=()=>openModal(task);
-    enableDrag(task);
+  if(activeTask){
+    Object.assign(activeTask.task,task);
+  }else{
+    weekData()[side][d].push(task);
   }
 
-  task.textContent=`${cfg.icon} ${title.value}`;
-  task.style.background=cfg.color;
-
-  task.dataset.title=title.value;
-  task.dataset.category=category.value;
-  task.dataset.day=day.value;
-  task.dataset.area=area.value;
-
-  task.classList.toggle("done",done.checked);
-
-  const column = area.value==="left" ? leftCol : rightCol;
-  const dayBox = column.querySelector(`.day[data-day='${day.value}']`);
-
-  dayBox.appendChild(task);
-  reorderDay(dayBox);
-
   modal.style.display="none";
-  activeTask=null;
+  render();
 };
 
-deleteBtn.onclick=()=>{
-  if(activeTask) activeTask.remove();
-  modal.style.display="none";
-  activeTask=null;
-};
+prevWeek.onclick=()=>{ currentWeek--; render(); };
+nextWeek.onclick=()=>{ currentWeek++; render(); };
+
+render();
 </script>
 
 </body>
