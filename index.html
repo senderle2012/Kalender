@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Achtsamer Wochenkalender – Version 22</title>
+<title>Achtsamer Wochenkalender – Version 23</title>
 <style>
 :root {
   --bg: #f6f7f5;
@@ -18,118 +18,32 @@
   --finance: #e2f0e8;
   --creative: #f3e1f5;
 }
-body {
-  margin:0;
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-  background: var(--bg);
-  color: var(--text);
-}
-header {
-  padding: 16px;
-  text-align: center;
-}
-header h1 {
-  margin:0;
-  font-size: 1.4rem;
-}
-header p {
-  margin: 4px 0 0;
-  color: var(--muted);
-  font-size: 0.9rem;
-}
-.calendar {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap:12px;
-  padding:12px;
-}
-.column {
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-}
-.column h3 {
-  margin:4px 0 8px;
-  font-size:0.9rem;
-  color: var(--muted);
-}
-.day {
-  background: var(--card);
-  border-radius:14px;
-  padding:10px;
-  min-height:90px;
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-}
-.day-number {
-  font-size:0.8rem;
-  color: var(--muted);
-}
-.event {
-  font-size:0.8rem;
-  padding:6px 8px;
-  border-radius:8px;
-  line-height:1.25;
-  cursor: grab;
-}
-.event:active { cursor: grabbing; }
-.done {
-  text-decoration: line-through;
-  color:#9a9a9a;
-  opacity:0.7;
-}
-.selfcare { background: var(--selfcare); }
-.health { background: var(--health); }
-.work { background: var(--work); }
-.family { background: var(--family); }
-.household { background: var(--household); }
-.finance { background: var(--finance); }
-.creative { background: var(--creative); }
-
-.add-button {
-  position:fixed;
-  bottom:16px;
-  right:16px;
-  width:56px;
-  height:56px;
-  border-radius:50%;
-  background:#2f7d7b;
-  color:white;
-  border:none;
-  font-size:2rem;
-  cursor:pointer;
-}
-
-.modal {
-  position:fixed;
-  inset:0;
-  background: rgba(0,0,0,0.4);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  padding:16px;
-}
-.modal-content {
-  background:white;
-  border-radius:16px;
-  padding:16px;
-  width:100%;
-  max-width:420px;
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-}
-label { font-size:0.8rem; color:var(--muted); }
-input, select, textarea, button {
-  padding:8px;
-  border-radius:8px;
-  border:1px solid #ddd;
-  font-size:0.9rem;
-}
-.save { background:#2f7d7b; color:white; border:none; }
-.delete { background:#d9534f; color:white; border:none; }
-
+body {margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);}
+header {padding:16px;text-align:center;}
+header h1 {margin:0;font-size:1.4rem;}
+header p {margin:4px 0 0;color:var(--muted);font-size:0.9rem;}
+.calendar {display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px;}
+.column {display:flex;flex-direction:column;gap:8px;}
+.column h3 {margin:4px 0 8px;font-size:0.9rem;color:var(--muted);}
+.day {background:var(--card);border-radius:14px;padding:10px;min-height:90px;display:flex;flex-direction:column;gap:6px;}
+.day-number {font-size:0.8rem;color:var(--muted);}
+.event {font-size:0.8rem;padding:6px 8px;border-radius:8px;line-height:1.25;cursor:grab;}
+.event:active {cursor:grabbing;}
+.done {text-decoration:line-through;color:#9a9a9a;opacity:0.7;}
+.selfcare {background: var(--selfcare);}
+.health {background: var(--health);}
+.work {background: var(--work);}
+.family {background: var(--family);}
+.household {background: var(--household);}
+.finance {background: var(--finance);}
+.creative {background: var(--creative);}
+.add-button {position:fixed;bottom:16px;right:16px;width:56px;height:56px;border-radius:50%;background:#2f7d7b;color:white;border:none;font-size:2rem;cursor:pointer;}
+.modal {position:fixed;inset:0;background: rgba(0,0,0,0.4);display:none;align-items:center;justify-content:center;padding:16px;}
+.modal-content {background:white;border-radius:16px;padding:16px;width:100%;max-width:420px;display:flex;flex-direction:column;gap:12px;}
+label {font-size:0.8rem;color:var(--muted);}
+input,select,textarea,button {padding:8px;border-radius:8px;border:1px solid #ddd;font-size:0.9rem;}
+.save {background:#2f7d7b;color:white;border:none;}
+.delete {background:#d9534f;color:white;border:none;}
 </style>
 </head>
 <body>
@@ -139,8 +53,14 @@ input, select, textarea, button {
 <p>Links meine Todos · rechts alles, was ich im Blick behalte</p>
 </header>
 
-<div class="calendar" id="calendar"></div>
+<div style="display:flex;justify-content:center;gap:8px;margin-bottom:10px;">
+  <button onclick="changeWeek(-1)">◀</button>
+  <button onclick="goToToday()">Heute</button>
+  <button onclick="changeWeek(1)">▶</button>
+  <span id="weekLabel" style="margin-left:12px;font-weight:bold;"></span>
+</div>
 
+<div class="calendar" id="calendar"></div>
 <button class="add-button" id="openModal">+</button>
 
 <div class="modal" id="modal">
@@ -150,7 +70,7 @@ input, select, textarea, button {
     <input id="title" placeholder="z.B. Yoga, Kinderarzt, Geburtstag Oma">
     <label>Tag</label>
     <input id="day" type="hidden">
-    <div id="dayPicker" style="display:flex; gap:6px; flex-wrap:wrap;"></div>
+    <div id="dayPicker" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
     <label>Bereich</label>
     <select id="category">
       <option value="selfcare">🌞 Selbstfürsorge</option>
@@ -166,10 +86,10 @@ input, select, textarea, button {
       <option value="todo">Meine Todos</option>
       <option value="info">Im Blick</option>
     </select>
-    <label>Private Notiz (nur beim Öffnen sichtbar)</label>
+    <label>Private Notiz</label>
     <textarea id="note" rows="3"></textarea>
     <label><input type="checkbox" id="done"> erledigt</label>
-    <div style="display:flex; gap:8px;">
+    <div style="display:flex;gap:8px;">
       <button class="save" id="saveEvent">Speichern</button>
       <button class="delete" id="deleteEvent">Löschen</button>
     </div>
@@ -182,40 +102,43 @@ const modal = document.getElementById('modal');
 const modalTitle = document.getElementById('modalTitle');
 const dayPicker = document.getElementById('dayPicker');
 const deleteBtn = document.getElementById('deleteEvent');
+const weekLabel = document.getElementById('weekLabel');
 
 let activeEvent = null;
 let draggedEvent = null;
+let weekOffset = 0;
 
-const weekdays = ['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
+const weekdays=['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
+let tasks = JSON.parse(localStorage.getItem('tasks')||'[]');
 
 const leftCol = document.createElement('div');
 const rightCol = document.createElement('div');
-leftCol.className = 'column';
-rightCol.className = 'column';
-leftCol.innerHTML = '<h3>Meine Todos</h3>';
-rightCol.innerHTML = '<h3>Im Blick</h3>';
+leftCol.className='column';
+rightCol.className='column';
+leftCol.innerHTML='<h3>Meine Todos</h3>';
+rightCol.innerHTML='<h3>Im Blick</h3>';
 calendar.appendChild(leftCol);
 calendar.appendChild(rightCol);
 
 weekdays.forEach((name,index)=>{
-  const dayTodo = document.createElement('div');
+  const dayTodo=document.createElement('div');
   dayTodo.className='day';
-  dayTodo.dataset.day = index+1;
+  dayTodo.dataset.day=index+1;
   dayTodo.innerHTML=`<div class="day-number">${name}</div>`;
   enableDrop(dayTodo);
   leftCol.appendChild(dayTodo);
 
-  const dayInfo = document.createElement('div');
+  const dayInfo=document.createElement('div');
   dayInfo.className='day';
-  dayInfo.dataset.day = index+1;
+  dayInfo.dataset.day=index+1;
   dayInfo.innerHTML=`<div class="day-number">${name}</div>`;
   enableDrop(dayInfo);
   rightCol.appendChild(dayInfo);
 
-  const pick = document.createElement('button');
-  pick.textContent = name.slice(0,2);
-  pick.onclick = () => selectDay(index+1,pick);
-  pick.style.opacity = 0.4;
+  const pick=document.createElement('button');
+  pick.textContent=name.slice(0,2);
+  pick.onclick=()=>selectDay(index+1,pick);
+  pick.style.opacity=0.4;
   dayPicker.appendChild(pick);
 });
 
@@ -226,21 +149,25 @@ function selectDay(day,btn){
 }
 
 function enableDrop(day){
-  day.ondragover = e=>e.preventDefault();
-  day.ondrop = ()=>{
+  day.ondragover=e=>e.preventDefault();
+  day.ondrop=()=>{
     if(draggedEvent){
       draggedEvent.parentElement.removeChild(draggedEvent);
       day.appendChild(draggedEvent);
+      const t=tasks.find(x=>x.id==draggedEvent.dataset.id);
+      t.day=day.dataset.day;
+      t.column=draggedEvent.dataset.type;
+      t.weekOffset=weekOffset;
+      saveTasks();
     }
   };
 }
 
-document.getElementById('openModal').onclick = () => openModal();
+document.getElementById('openModal').onclick=()=>openModal();
 
 function openModal(eventEl=null){
   modal.style.display='flex';
-  activeEvent = eventEl;
-
+  activeEvent=eventEl;
   if(eventEl){
     modalTitle.textContent='Eintrag ansehen / bearbeiten';
     title.value=eventEl.dataset.title;
@@ -260,59 +187,103 @@ function openModal(eventEl=null){
   }
 }
 
-modal.onclick = e=>{ if(e.target===modal) modal.style.display='none'; }
+modal.onclick=e=>{if(e.target===modal) modal.style.display='none';}
 
-saveEvent.onclick = () => {
-  const titleVal = title.value;
-  const dayNumber = day.value;
-  const categoryVal = category.value;
-  const noteVal = note.value;
-  const typeVal = type.value;
-  const doneVal = done.checked;
+saveEvent.onclick=()=>{
+  const titleVal=title.value;
+  const dayNumber=day.value;
+  const categoryVal=category.value;
+  const noteVal=note.value;
+  const typeVal=type.value;
+  const doneVal=done.checked;
+  if(!titleVal||!dayNumber)return;
 
-  if(!titleVal||!dayNumber) return;
-
-  let eventEl = activeEvent;
+  let eventEl=activeEvent;
   if(!eventEl){
-    eventEl = document.createElement('div');
+    eventEl=document.createElement('div');
     eventEl.className=`event ${categoryVal}`;
     eventEl.draggable=true;
+    eventEl.dataset.id=Date.now();
     eventEl.ondragstart=e=>{draggedEvent=eventEl;e.dataTransfer.effectAllowed='move';};
     eventEl.ondragend=()=>draggedEvent=null;
-    eventEl.onclick = ()=>openModal(eventEl);
-
-    const column = typeVal==='info'?rightCol:leftCol;
-    const dayBox = column.querySelector(`.day[data-day='${dayNumber}']`);
-    dayBox.appendChild(eventEl);
+    eventEl.onclick=()=>openModal(eventEl);
   }
 
-  eventEl.textContent = titleVal;
+  eventEl.textContent=titleVal;
   eventEl.dataset.title=titleVal;
   eventEl.dataset.category=categoryVal;
   eventEl.dataset.note=noteVal;
   eventEl.dataset.type=typeVal;
   eventEl.dataset.day=dayNumber;
   eventEl.dataset.done=doneVal;
+  eventEl.dataset.weekOffset=weekOffset;
   eventEl.classList.toggle('done',doneVal);
 
-  reorderDay(eventEl.parentElement);
+  if(!tasks.find(t=>t.id==eventEl.dataset.id)){
+    tasks.push({
+      id:eventEl.dataset.id,title:titleVal,day:dayNumber,
+      category:categoryVal,type:typeVal,note:noteVal,
+      done:doneVal,weekOffset:weekOffset
+    });
+  } else {
+    const t=tasks.find(x=>x.id==eventEl.dataset.id);
+    Object.assign(t,{title:titleVal,day:dayNumber,category:categoryVal,type:typeVal,note:noteVal,done:doneVal,weekOffset:weekOffset});
+  }
+
+  saveTasks();
+  render();
   modal.style.display='none';
   activeEvent=null;
 };
 
 deleteBtn.onclick=()=>{
-  if(activeEvent) activeEvent.remove();
-  modal.style.display='none';
-  activeEvent=null;
+  if(activeEvent){
+    tasks=tasks.filter(t=>t.id!==activeEvent.dataset.id);
+    saveTasks();
+    render();
+    modal.style.display='none';
+    activeEvent=null;
+  }
 };
 
-function reorderDay(day){
-  const events = [...day.querySelectorAll('.event')];
-  const open = events.filter(e=>!e.classList.contains('done'));
-  const done = events.filter(e=>e.classList.contains('done'));
-  [...open,...done].forEach(e=>day.appendChild(e));
+function render(){
+  weekLabel.textContent='Woche '+weekOffset;
+  leftCol.querySelectorAll('.day').forEach(d=>d.innerHTML=`<div class="day-number">${weekdays[d.dataset.day-1]}</div>`);
+  rightCol.querySelectorAll('.day').forEach(d=>d.innerHTML=`<div class="day-number">${weekdays[d.dataset.day-1]}</div>`);
+
+  leftCol.querySelectorAll('.day').forEach(d=>{d.querySelectorAll('.event').forEach(e=>e.remove());});
+  rightCol.querySelectorAll('.day').forEach(d=>{d.querySelectorAll('.event').forEach(e=>e.remove());});
+
+  [...tasks.filter(t=>parseInt(t.weekOffset)===weekOffset)]
+    .sort((a,b)=>a.done-b.done)
+    .forEach(t=>{
+      const col=t.type==='info'?rightCol:leftCol;
+      const dayBox=col.querySelector(`.day[data-day='${t.day}']`);
+      const div=document.createElement('div');
+      div.className=`event ${t.category}`;
+      div.draggable=true;
+      div.dataset.id=t.id;
+      div.dataset.title=t.title;
+      div.dataset.category=t.category;
+      div.dataset.type=t.type;
+      div.dataset.day=t.day;
+      div.dataset.done=t.done;
+      div.dataset.note=t.note;
+      div.dataset.weekOffset=t.weekOffset;
+      div.classList.toggle('done',t.done);
+      div.textContent=t.title;
+      div.ondragstart=e=>{draggedEvent=div;e.dataTransfer.effectAllowed='move';};
+      div.ondragend=()=>draggedEvent=null;
+      div.onclick=()=>openModal(div);
+      dayBox.appendChild(div);
+    });
 }
 
+function saveTasks(){localStorage.setItem('tasks',JSON.stringify(tasks));}
+function changeWeek(n){weekOffset+=n;render();}
+function goToToday(){weekOffset=0;render();}
+
+render();
 </script>
 </body>
 </html>
