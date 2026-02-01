@@ -244,6 +244,13 @@ modal.onclick=e=>{
   if(e.target===modal) modal.style.display="none";
 };
 
+function reorderDay(dayBox){
+  const tasks=[...dayBox.querySelectorAll(".task")];
+  const open=tasks.filter(t=>!t.classList.contains("done"));
+  const done=tasks.filter(t=>t.classList.contains("done"));
+  [...open,...done].forEach(t=>dayBox.appendChild(t));
+}
+
 saveBtn.onclick=()=>{
   if(!title.value) return;
 
@@ -263,18 +270,20 @@ saveBtn.onclick=()=>{
   task.dataset.day=day.value;
   task.classList.toggle("done",done.checked);
 
-  // 🔑 HIER die neue Logik:
-  if(!activeTask || originalDay !== day.value){
-    const newDayBox = leftCol.querySelector(`.day[data-day='${day.value}']`);
-    newDayBox.appendChild(task);
-  }
+  const dayBox = leftCol.querySelector(`.day[data-day='${day.value}']`);
+  dayBox.appendChild(task);
+  reorderDay(dayBox);
 
   modal.style.display="none";
   activeTask=null;
 };
 
 deleteBtn.onclick=()=>{
-  if(activeTask) activeTask.remove();
+  if(activeTask){
+    const parent=activeTask.parentElement;
+    activeTask.remove();
+    reorderDay(parent);
+  }
   modal.style.display="none";
   activeTask=null;
 };
