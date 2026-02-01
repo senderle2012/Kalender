@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Achtsamer Wochenkalender</title>
 
 <style>
@@ -23,11 +23,6 @@ body{
 header{
   padding:14px;
   text-align:center;
-}
-
-header h1{
-  margin:0;
-  font-size:1.4rem;
 }
 
 .calendar{
@@ -53,14 +48,14 @@ header h1{
   background:var(--card);
   border-radius:14px;
   padding:8px;
-  min-height:80px;
+  min-height:90px;
   box-shadow:0 2px 6px rgba(0,0,0,0.05);
 }
 
 .day-title{
   font-size:0.8rem;
   color:var(--muted);
-  margin-bottom:4px;
+  margin-bottom:6px;
 }
 
 .task{
@@ -114,7 +109,7 @@ label{
   color:var(--muted);
 }
 
-input,select,textarea{
+input,select{
   padding:8px;
   border-radius:8px;
   border:1px solid #ddd;
@@ -148,7 +143,7 @@ input,select,textarea{
     <h3 id="modalTitle">Neuer Eintrag</h3>
 
     <label>Titel</label>
-    <input id="title"/>
+    <input id="title">
 
     <label>Wochentag</label>
     <select id="day">
@@ -172,11 +167,11 @@ input,select,textarea{
       <option value="creative">Kreatives</option>
     </select>
 
-    <label><input type="checkbox" id="done"/> erledigt</label>
+    <label><input type="checkbox" id="done"> erledigt</label>
 
     <div class="actions">
-      <button class="save" id="save">Speichern</button>
-      <button id="delete" style="display:none;">Löschen</button>
+      <button class="save" id="saveBtn">Speichern</button>
+      <button id="deleteBtn" style="display:none;">Löschen</button>
     </div>
   </div>
 </div>
@@ -196,28 +191,36 @@ const categoryConfig={
 
 const calendar=document.getElementById("calendar");
 const modal=document.getElementById("modal");
+const addBtn=document.getElementById("addBtn");
+
 let activeTask=null;
 
-const left=document.createElement("div");
-left.className="column";
-left.innerHTML="<h3>Meine Todos</h3>";
+const leftCol=document.createElement("div");
+leftCol.className="column";
+leftCol.innerHTML="<h3>Meine Todos</h3>";
 
-const right=document.createElement("div");
-right.className="column";
-right.innerHTML="<h3>Info / Andere</h3>";
+const rightCol=document.createElement("div");
+rightCol.className="column";
+rightCol.innerHTML="<h3>Info / Andere</h3>";
 
-calendar.append(left,right);
+calendar.append(leftCol,rightCol);
 
-weekdays.forEach((d,i)=>{
-  const day=document.createElement("div");
-  day.className="day";
-  day.dataset.day=i;
-  day.innerHTML=`<div class="day-title">${d}</div>`;
-  left.appendChild(day.cloneNode(true));
-  right.appendChild(day);
+// Tage korrekt erzeugen
+weekdays.forEach((name,i)=>{
+  const dayLeft=document.createElement("div");
+  dayLeft.className="day";
+  dayLeft.dataset.day=i;
+  dayLeft.innerHTML=`<div class="day-title">${name}</div>`;
+  leftCol.appendChild(dayLeft);
+
+  const dayRight=document.createElement("div");
+  dayRight.className="day";
+  dayRight.innerHTML=`<div class="day-title">${name}</div>`;
+  rightCol.appendChild(dayRight);
 });
 
-document.getElementById("addBtn").onclick=()=>openModal();
+// Modal öffnen
+addBtn.onclick=()=>openModal();
 
 function openModal(task=null){
   modal.style.display="flex";
@@ -236,10 +239,12 @@ function openModal(task=null){
   }
 }
 
-modal.onclick=e=>{if(e.target===modal)modal.style.display="none";};
+modal.onclick=e=>{
+  if(e.target===modal) modal.style.display="none";
+};
 
-save.onclick=()=>{
-  if(!title.value)return;
+saveBtn.onclick=()=>{
+  if(!title.value) return;
 
   let task=activeTask;
   const cfg=categoryConfig[category.value];
@@ -248,7 +253,7 @@ save.onclick=()=>{
     task=document.createElement("div");
     task.className="task";
     task.onclick=()=>openModal(task);
-    left.querySelector(`.day[data-day='${day.value}']`).appendChild(task);
+    leftCol.querySelector(`.day[data-day='${day.value}']`).appendChild(task);
   }
 
   task.textContent=`${cfg.icon} ${title.value}`;
@@ -262,8 +267,8 @@ save.onclick=()=>{
   activeTask=null;
 };
 
-delete.onclick=()=>{
-  if(activeTask)activeTask.remove();
+deleteBtn.onclick=()=>{
+  if(activeTask) activeTask.remove();
   modal.style.display="none";
   activeTask=null;
 };
