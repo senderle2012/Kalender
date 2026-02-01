@@ -1,68 +1,157 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mein achtsamer Wochenkalender – Version 15</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Achtsamer Wochenkalender</title>
 
 <style>
-body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #f6f5f2;
-  margin: 0;
-  padding: 16px;
-  color: #333;
+:root{
+  --bg:#f6f7f5;
+  --card:#ffffff;
+  --text:#2f2f2f;
+  --muted:#777;
 }
 
-h1 { text-align: center; margin-bottom: 8px; }
-.subtitle { text-align:center; font-size:0.9em; color:#666; margin-bottom:24px; }
-
-.week { display: flex; flex-direction: column; gap:16px; }
-
-.day { background: #ffffff; border-radius:14px; padding:12px; box-shadow:0 2px 6px rgba(0,0,0,0.05); }
-.day-title { font-weight:600; margin-bottom:10px; }
-.columns { display:flex; gap:10px; }
-.column { flex:1; border-radius:10px; padding:10px; min-height:40px; font-size:0.9em; color:#555; }
-.left { background: #fff9c4; }   /* zartes Gelb */
-.right { background: #e0f7fa; }  /* sanftes Blau */
-
-/* Plus-Button */
-#addButton {
-  position: fixed; bottom:16px; right:16px; width:56px; height:56px;
-  border-radius:50%; background:#2f7d7b; color:white; font-size:2rem;
-  border:none; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.2);
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  background:var(--bg);
+  color:var(--text);
 }
 
-/* Modal Popup */
-#modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); align-items:center; justify-content:center; padding:16px; }
-#modal > div { background:white; border-radius:16px; padding:16px; width:100%; max-width:420px; display:flex; flex-direction:column; gap:12px; }
+header{
+  padding:14px;
+  text-align:center;
+}
 
-input, select, textarea, button { padding:8px; border-radius:8px; border:1px solid #ddd; font-size:0.9rem; }
-#saveTask { background:#2f7d7b; color:white; border:none; }
-#cancelTask { background:#ccc; flex:1; }
+header h1{
+  margin:0;
+  font-size:1.4rem;
+}
+
+.calendar{
+  padding:12px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+.column{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.column h3{
+  margin:4px 0;
+  font-size:0.9rem;
+  color:var(--muted);
+}
+
+.day{
+  background:var(--card);
+  border-radius:14px;
+  padding:8px;
+  min-height:80px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.05);
+}
+
+.day-title{
+  font-size:0.8rem;
+  color:var(--muted);
+  margin-bottom:4px;
+}
+
+.task{
+  font-size:0.8rem;
+  padding:6px 8px;
+  border-radius:8px;
+  margin-bottom:4px;
+  cursor:pointer;
+}
+
+.task.done{
+  opacity:0.6;
+  text-decoration:line-through;
+}
+
+button.add{
+  position:fixed;
+  right:16px;
+  bottom:16px;
+  width:56px;
+  height:56px;
+  border-radius:50%;
+  border:none;
+  font-size:2rem;
+  background:#2f7d7b;
+  color:white;
+}
+
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.4);
+  display:none;
+  align-items:center;
+  justify-content:center;
+}
+
+.modal-content{
+  background:white;
+  padding:16px;
+  border-radius:16px;
+  width:90%;
+  max-width:420px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+label{
+  font-size:0.8rem;
+  color:var(--muted);
+}
+
+input,select,textarea{
+  padding:8px;
+  border-radius:8px;
+  border:1px solid #ddd;
+}
+
+.actions{
+  display:flex;
+  gap:8px;
+}
+
+.save{
+  background:#2f7d7b;
+  color:white;
+  border:none;
+}
 </style>
 </head>
 
 <body>
 
-<h1>Mein achtsamer Wochenkalender</h1>
-<div class="subtitle">Links das, was ich tue · rechts das, was ich im Blick behalte</div>
+<header>
+  <h1>Mein achtsamer Wochenkalender</h1>
+</header>
 
-<div class="week" id="weekContainer">
-  <!-- Wochentage werden per JS erstellt -->
-</div>
+<div class="calendar" id="calendar"></div>
 
-<button id="addButton">+</button>
+<button class="add" id="addBtn">+</button>
 
-<div id="modal">
-  <div>
-    <h2>Aufgabe erstellen / bearbeiten</h2>
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <h3 id="modalTitle">Neuer Eintrag</h3>
 
     <label>Titel</label>
-    <input id="taskTitle" placeholder="z. B. Yoga, Kinderarzt" />
+    <input id="title"/>
 
-    <label>Tag</label>
-    <select id="taskDay">
+    <label>Wochentag</label>
+    <select id="day">
       <option value="0">Montag</option>
       <option value="1">Dienstag</option>
       <option value="2">Mittwoch</option>
@@ -73,142 +162,111 @@ input, select, textarea, button { padding:8px; border-radius:8px; border:1px sol
     </select>
 
     <label>Kategorie</label>
-    <select id="taskCategory">
-      <option value="selfcare">🌞 Selbstfürsorge</option>
-      <option value="health">💊 Gesundheit</option>
-      <option value="household">🏡 Haushalt</option>
-      <option value="finance">💰 Finanzen</option>
-      <option value="creative">🎨 Kreatives</option>
-      <option value="work">💼 Arbeit</option>
-      <option value="family">👨‍👩‍👧 Familie</option>
-      <option value="volunteer">🤝 Ehrenamt</option>
-      <option value="friends">🫂 Freunde</option>
-      <option value="child-t">🧒 Kind T</option>
-      <option value="child-n">👧 Kind N</option>
+    <select id="category">
+      <option value="selfcare">Selbstfürsorge</option>
+      <option value="health">Gesundheit</option>
+      <option value="work">Arbeit</option>
+      <option value="family">Familie</option>
+      <option value="household">Haushalt</option>
+      <option value="finance">Finanzen</option>
+      <option value="creative">Kreatives</option>
     </select>
 
-    <label>Typ</label>
-    <select id="taskType">
-      <option value="todo">Mein Todo</option>
-      <option value="info">Info / andere betrifft es</option>
-    </select>
+    <label><input type="checkbox" id="done"/> erledigt</label>
 
-    <label>Private Notiz</label>
-    <textarea id="taskNote" rows="3"></textarea>
-
-    <label><input type="checkbox" id="taskDone"/> Erledigt</label>
-
-    <div style="display:flex; gap:8px;">
-      <button id="saveTask">Speichern</button>
-      <button id="cancelTask">Abbrechen</button>
+    <div class="actions">
+      <button class="save" id="save">Speichern</button>
+      <button id="delete" style="display:none;">Löschen</button>
     </div>
   </div>
 </div>
 
 <script>
-const weekdays = ['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
-const weekContainer = document.getElementById('weekContainer');
-const addButton = document.getElementById('addButton');
-const modal = document.getElementById('modal');
-const saveTask = document.getElementById('saveTask');
-const cancelTask = document.getElementById('cancelTask');
+const weekdays=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"];
 
-let activeTask = null;
-let draggedTask = null;
-const columns = []; // Spalten für Drag & Drop
-
-// Wochentage erstellen
-weekdays.forEach((day, index) => {
-  const dayDiv = document.createElement('div');
-  dayDiv.className = 'day';
-  dayDiv.dataset.day = index;
-  dayDiv.innerHTML = `<div class="day-title">${day}</div>
-                       <div class="columns">
-                         <div class="column left"></div>
-                         <div class="column right"></div>
-                       </div>`;
-  weekContainer.appendChild(dayDiv);
-
-  columns.push(dayDiv.querySelector('.left'));
-  columns.push(dayDiv.querySelector('.right'));
-});
-
-// Modal öffnen / schließen
-addButton.onclick = () => openModal();
-cancelTask.onclick = () => modal.style.display = 'none';
-
-function openModal(task=null){
-  activeTask = task;
-  modal.style.display = 'flex';
-  document.getElementById('taskTitle').value = task?.dataset.title || '';
-  document.getElementById('taskCategory').value = task?.dataset.category || 'selfcare';
-  document.getElementById('taskType').value = task?.dataset.type || 'todo';
-  document.getElementById('taskNote').value = task?.dataset.note || '';
-  document.getElementById('taskDone').checked = task?.dataset.done === "true";
-  document.getElementById('taskDay').value = task?.dataset.day || 0;
-}
-
-saveTask.onclick = () => {
-  const title = document.getElementById('taskTitle').value;
-  const type = document.getElementById('taskType').value;
-  const category = document.getElementById('taskCategory').value;
-  const note = document.getElementById('taskNote').value;
-  const done = document.getElementById('taskDone').checked;
-  const day = parseInt(document.getElementById('taskDay').value);
-
-  if(!title) return alert("Bitte einen Titel eingeben");
-
-  let task = activeTask;
-  if(!task){
-    task = document.createElement('div');
-    task.style.padding = '6px 8px';
-    task.style.borderRadius = '8px';
-    task.style.marginTop = '6px';
-    task.style.cursor = 'pointer';
-    task.draggable = true;
-    task.ondragstart = e => { draggedTask = task; e.dataTransfer.effectAllowed='move'; };
-    task.ondragend = () => draggedTask = null;
-    task.onclick = () => openModal(task);
-  }
-
-  task.textContent = category.split(' ')[0] + ' ' + title; // Symbol + Text
-  task.dataset.title = title;
-  task.dataset.category = category;
-  task.dataset.type = type;
-  task.dataset.note = note;
-  task.dataset.done = done;
-  task.dataset.day = day;
-
-  task.style.background = done ? '#cfcfcf' : '#ffe082';
-  task.style.textDecoration = done ? 'line-through' : 'none';
-  task.style.color = done ? '#777' : '#333';
-
-  const column = type==='info' ? weekContainer.children[day].querySelector('.right')
-                               : weekContainer.children[day].querySelector('.left');
-  column.appendChild(task);
-  reorderColumn(column);
-
-  modal.style.display='none';
+const categoryConfig={
+  selfcare:{icon:"🌞",color:"#fff3b0"},
+  health:{icon:"💊",color:"#f8d7da"},
+  work:{icon:"💼",color:"#e3f2fd"},
+  family:{icon:"👨‍👩‍👧",color:"#e8f5e9"},
+  household:{icon:"🏡",color:"#e6e0d4"},
+  finance:{icon:"💰",color:"#e8f5e9"},
+  creative:{icon:"🎨",color:"#f3e5f5"}
 };
 
-// Sortierung: erledigte Aufgaben nach unten
-function reorderColumn(column){
-  const tasks = [...column.children];
-  const doneTasks = tasks.filter(t => t.dataset.done==='true');
-  const openTasks = tasks.filter(t => t.dataset.done!=='true');
-  [...openTasks, ...doneTasks].forEach(t => column.appendChild(t));
+const calendar=document.getElementById("calendar");
+const modal=document.getElementById("modal");
+let activeTask=null;
+
+const left=document.createElement("div");
+left.className="column";
+left.innerHTML="<h3>Meine Todos</h3>";
+
+const right=document.createElement("div");
+right.className="column";
+right.innerHTML="<h3>Info / Andere</h3>";
+
+calendar.append(left,right);
+
+weekdays.forEach((d,i)=>{
+  const day=document.createElement("div");
+  day.className="day";
+  day.dataset.day=i;
+  day.innerHTML=`<div class="day-title">${d}</div>`;
+  left.appendChild(day.cloneNode(true));
+  right.appendChild(day);
+});
+
+document.getElementById("addBtn").onclick=()=>openModal();
+
+function openModal(task=null){
+  modal.style.display="flex";
+  activeTask=task;
+
+  if(task){
+    title.value=task.dataset.title;
+    day.value=task.dataset.day;
+    category.value=task.dataset.category;
+    done.checked=task.classList.contains("done");
+    deleteBtn.style.display="inline-block";
+  }else{
+    title.value="";
+    done.checked=false;
+    deleteBtn.style.display="none";
+  }
 }
 
-// Drag & Drop
-columns.forEach(col => {
-  col.ondragover = e => e.preventDefault();
-  col.ondrop = e => {
-    if(draggedTask){
-      col.appendChild(draggedTask);
-      reorderColumn(col);
-    }
-  };
-});
+modal.onclick=e=>{if(e.target===modal)modal.style.display="none";};
+
+save.onclick=()=>{
+  if(!title.value)return;
+
+  let task=activeTask;
+  const cfg=categoryConfig[category.value];
+
+  if(!task){
+    task=document.createElement("div");
+    task.className="task";
+    task.onclick=()=>openModal(task);
+    left.querySelector(`.day[data-day='${day.value}']`).appendChild(task);
+  }
+
+  task.textContent=`${cfg.icon} ${title.value}`;
+  task.style.background=cfg.color;
+  task.dataset.title=title.value;
+  task.dataset.day=day.value;
+  task.dataset.category=category.value;
+  task.classList.toggle("done",done.checked);
+
+  modal.style.display="none";
+  activeTask=null;
+};
+
+delete.onclick=()=>{
+  if(activeTask)activeTask.remove();
+  modal.style.display="none";
+  activeTask=null;
+};
 </script>
 
 </body>
