@@ -11,20 +11,27 @@
   --card:#ffffff;
   --text:#2f2f2f;
   --muted:#777;
+
+  --selfcare:#fff2b3;
+  --health:#d9e7c9;
+  --work:#e6d8f2;
+  --family:#dff0d8;
+  --household:#efe6d8;
+  --finance:#e2f0e8;
+  --creative:#f3e1f5;
 }
 
 body{
   margin:0;
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
   background:var(--bg);
-  color:var(--text);
 }
 
 header{
   padding:12px;
   display:flex;
-  align-items:center;
   justify-content:space-between;
+  align-items:center;
 }
 
 header h1{
@@ -54,7 +61,6 @@ header button{
 .column h3{
   font-size:0.85rem;
   color:var(--muted);
-  margin:4px 0;
 }
 
 .day{
@@ -75,13 +81,21 @@ header button{
   padding:6px 8px;
   border-radius:8px;
   margin-bottom:6px;
-  cursor:grab;
+  cursor:pointer;
 }
 
 .task.done{
   opacity:0.6;
   text-decoration:line-through;
 }
+
+.selfcare{ background:var(--selfcare); }
+.health{ background:var(--health); }
+.work{ background:var(--work); }
+.family{ background:var(--family); }
+.household{ background:var(--household); }
+.finance{ background:var(--finance); }
+.creative{ background:var(--creative); }
 
 .add{
   position:fixed;
@@ -131,14 +145,23 @@ header button{
 
 <div class="modal" id="modal">
   <div class="modal-content">
-    <h3>Eintrag</h3>
-
     <input id="title" placeholder="Titel">
 
     <select id="day"></select>
+
     <select id="area">
       <option value="left">Meine Todos</option>
       <option value="right">Im Blick</option>
+    </select>
+
+    <select id="category">
+      <option value="selfcare">🌞 Selbstfürsorge</option>
+      <option value="health">🫀 Gesundheit</option>
+      <option value="work">💼 Arbeit</option>
+      <option value="family">🌿 Familie</option>
+      <option value="household">🏠 Haushalt</option>
+      <option value="finance">💰 Finanzen</option>
+      <option value="creative">🎨 Kreatives</option>
     </select>
 
     <label><input type="checkbox" id="done"> erledigt</label>
@@ -154,7 +177,7 @@ const modal=document.getElementById("modal");
 
 let currentWeek=0;
 let data={};
-let activeTask=null;
+let active=null;
 
 function weekData(){
   if(!data[currentWeek]){
@@ -163,69 +186,6 @@ function weekData(){
   return data[currentWeek];
 }
 
-function render(){
-  calendar.innerHTML="";
-  weekLabel.textContent = currentWeek===0 ? "Diese Woche" :
-    currentWeek>0 ? `In ${currentWeek} Woche(n)` : `${Math.abs(currentWeek)} Woche(n) zurück`;
-
-  ["left","right"].forEach(side=>{
-    const col=document.createElement("div");
-    col.className="column";
-    col.innerHTML=`<h3>${side==="left"?"Meine Todos":"Im Blick"}</h3>`;
-
-    weekdays.forEach((name,i)=>{
-      const day=document.createElement("div");
-      day.className="day";
-      day.innerHTML=`<div class="day-title">${name}</div>`;
-
-      day.ondragover=e=>e.preventDefault();
-      day.ondrop=()=>{
-        if(dragged){
-          day.appendChild(dragged.el);
-          dragged.from.splice(dragged.index,1);
-          weekData()[side][i].push(dragged.task);
-          dragged=null;
-        }
-      };
-
-      weekData()[side][i].forEach(task=>{
-        const t=document.createElement("div");
-        t.className="task"+(task.done?" done":"");
-        t.textContent=task.title;
-        t.draggable=true;
-
-        t.ondragstart=()=>{
-          dragged={ el:t, task, from:weekData()[side][i], index:weekData()[side][i].indexOf(task) };
-        };
-
-        t.onclick=()=>{
-          activeTask={task,side,i};
-          title.value=task.title;
-          daySel.value=i;
-          area.value=side;
-          done.checked=task.done;
-          modal.style.display="flex";
-        };
-
-        day.appendChild(t);
-      });
-
-      col.appendChild(day);
-    });
-
-    calendar.appendChild(col);
-  });
-}
-
-let dragged=null;
-
-addBtn.onclick=()=>{
-  activeTask=null;
-  title.value="";
-  done.checked=false;
-  modal.style.display="flex";
-};
-
 weekdays.forEach((d,i)=>{
   const o=document.createElement("option");
   o.value=i;
@@ -233,13 +193,62 @@ weekdays.forEach((d,i)=>{
   day.appendChild(o);
 });
 
+function render(){
+  calendar.innerHTML="";
+  weekLabel.textContent=currentWeek===0?"Diese Woche":(currentWeek>0?`In ${currentWeek} Woche(n)`:`${Math.abs(currentWeek)} Woche(n) zurück`);
+
+  ["left","right"].forEach(side=>{
+    const col=document.createElement("div");
+    col.className="column";
+    col.innerHTML=`<h3>${side==="left"?"Meine Todos":"Im Blick"}</h3>`;
+
+    weekdays.forEach((name,i)=>{
+      const dayBox=document.createElement("div");
+      dayBox.className="day";
+      dayBox.innerHTML=`<div class="day-title">${name}</div>`;
+
+      weekData()[side][i].forEach(task=>{
+        const t=document.createElement("div");
+        t.className=`task ${task.category}`+(task.done?" done":"");
+        t.textContent=task.title;
+        t.onclick=()=>{
+          active={task,side,i};
+          title.value=task.title;
+          category.value=task.category;
+          area.value=side;
+          day.value=i;
+          done.checked=task.done;
+          modal.style.display="flex";
+        };
+        dayBox.appendChild(t);
+      });
+
+      col.appendChild(dayBox);
+    });
+
+    calendar.appendChild(col);
+  });
+}
+
+addBtn.onclick=()=>{
+  active=null;
+  title.value="";
+  done.checked=false;
+  modal.style.display="flex";
+};
+
 saveBtn.onclick=()=>{
-  const task={ title:title.value, done:done.checked };
+  const task={
+    title:title.value,
+    category:category.value,
+    done:done.checked
+  };
+
   const side=area.value;
   const d=parseInt(day.value);
 
-  if(activeTask){
-    Object.assign(activeTask.task,task);
+  if(active){
+    Object.assign(active.task,task);
   }else{
     weekData()[side][d].push(task);
   }
