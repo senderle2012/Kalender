@@ -52,6 +52,10 @@ header{
   box-shadow:0 2px 6px rgba(0,0,0,0.05);
 }
 
+.day.drag-over{
+  outline:2px dashed #2f7d7b;
+}
+
 .day-title{
   font-size:0.8rem;
   color:var(--muted);
@@ -63,7 +67,11 @@ header{
   padding:6px 8px;
   border-radius:8px;
   margin-bottom:6px;
-  cursor:pointer;
+  cursor:grab;
+}
+
+.task.dragging{
+  opacity:0.4;
 }
 
 .task.done{
@@ -135,7 +143,6 @@ input,select{
 </header>
 
 <div class="calendar" id="calendar"></div>
-
 <button class="add" id="addBtn">+</button>
 
 <div class="modal" id="modal">
@@ -200,6 +207,7 @@ const modal=document.getElementById("modal");
 const addBtn=document.getElementById("addBtn");
 
 let activeTask=null;
+let draggedTask=null;
 
 const leftCol=document.createElement("div");
 leftCol.className="column";
@@ -216,7 +224,28 @@ function createDays(column){
     const day=document.createElement("div");
     day.className="day";
     day.dataset.day=i;
+
     day.innerHTML=`<div class="day-title">${name}</div>`;
+
+    day.addEventListener("dragover",e=>{
+      e.preventDefault();
+      day.classList.add("drag-over");
+    });
+
+    day.addEventListener("dragleave",()=>{
+      day.classList.remove("drag-over");
+    });
+
+    day.addEventListener("drop",()=>{
+      day.classList.remove("drag-over");
+      if(draggedTask){
+        day.appendChild(draggedTask);
+        draggedTask.dataset.day=i;
+        draggedTask.dataset.area = column === leftCol ? "left" : "right";
+        reorderDay(day);
+      }
+    });
+
     column.appendChild(day);
   });
 }
@@ -256,6 +285,20 @@ function reorderDay(dayBox){
   [...open,...done].forEach(t=>dayBox.appendChild(t));
 }
 
+function enableDrag(task){
+  task.draggable=true;
+
+  task.addEventListener("dragstart",()=>{
+    draggedTask=task;
+    task.classList.add("dragging");
+  });
+
+  task.addEventListener("dragend",()=>{
+    task.classList.remove("dragging");
+    draggedTask=null;
+  });
+}
+
 saveBtn.onclick=()=>{
   if(!title.value) return;
 
@@ -266,6 +309,7 @@ saveBtn.onclick=()=>{
     task=document.createElement("div");
     task.className="task";
     task.onclick=()=>openModal(task);
+    enableDrag(task);
   }
 
   task.textContent=`${cfg.icon} ${title.value}`;
@@ -289,9 +333,7 @@ saveBtn.onclick=()=>{
 };
 
 deleteBtn.onclick=()=>{
-  if(activeTask){
-    activeTask.remove();
-  }
+  if(activeTask) activeTask.remove();
   modal.style.display="none";
   activeTask=null;
 };
