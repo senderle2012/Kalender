@@ -62,7 +62,7 @@ header{
   font-size:0.8rem;
   padding:6px 8px;
   border-radius:8px;
-  margin-bottom:4px;
+  margin-bottom:6px;
   cursor:pointer;
 }
 
@@ -140,7 +140,7 @@ input,select{
 
 <div class="modal" id="modal">
   <div class="modal-content">
-    <h3 id="modalTitle">Neuer Eintrag</h3>
+    <h3>Eintrag</h3>
 
     <label>Titel</label>
     <input id="title">
@@ -194,6 +194,7 @@ const modal=document.getElementById("modal");
 const addBtn=document.getElementById("addBtn");
 
 let activeTask=null;
+let originalDay=null;
 
 const leftCol=document.createElement("div");
 leftCol.className="column";
@@ -205,7 +206,6 @@ rightCol.innerHTML="<h3>Info / Andere</h3>";
 
 calendar.append(leftCol,rightCol);
 
-// Tage korrekt erzeugen
 weekdays.forEach((name,i)=>{
   const dayLeft=document.createElement("div");
   dayLeft.className="day";
@@ -219,7 +219,6 @@ weekdays.forEach((name,i)=>{
   rightCol.appendChild(dayRight);
 });
 
-// Modal öffnen
 addBtn.onclick=()=>openModal();
 
 function openModal(task=null){
@@ -232,10 +231,12 @@ function openModal(task=null){
     category.value=task.dataset.category;
     done.checked=task.classList.contains("done");
     deleteBtn.style.display="inline-block";
+    originalDay=task.dataset.day;
   }else{
     title.value="";
     done.checked=false;
     deleteBtn.style.display="none";
+    originalDay=null;
   }
 }
 
@@ -246,22 +247,27 @@ modal.onclick=e=>{
 saveBtn.onclick=()=>{
   if(!title.value) return;
 
-  let task=activeTask;
   const cfg=categoryConfig[category.value];
+  let task=activeTask;
 
   if(!task){
     task=document.createElement("div");
     task.className="task";
     task.onclick=()=>openModal(task);
-    leftCol.querySelector(`.day[data-day='${day.value}']`).appendChild(task);
   }
 
   task.textContent=`${cfg.icon} ${title.value}`;
   task.style.background=cfg.color;
   task.dataset.title=title.value;
-  task.dataset.day=day.value;
   task.dataset.category=category.value;
+  task.dataset.day=day.value;
   task.classList.toggle("done",done.checked);
+
+  // 🔑 HIER die neue Logik:
+  if(!activeTask || originalDay !== day.value){
+    const newDayBox = leftCol.querySelector(`.day[data-day='${day.value}']`);
+    newDayBox.appendChild(task);
+  }
 
   modal.style.display="none";
   activeTask=null;
