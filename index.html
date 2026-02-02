@@ -3,25 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Achtsamer Wochenkalender – Version 23</title>
+<title>Achtsamer Wochenkalender – Version 24</title>
 <style>
 :root {
-  --bg: #f6f7f5;
-  --card: #ffffff;
-  --text: #2f2f2f;
-  --muted: #7a7a7a;
-  --selfcare: #fff7c2;
-  --health: #d9e7c9;
-  --work: #e6d8f2;
-  --family: #dff0d8;
-  --household: #efe6d8;
-  --finance: #e2f0e8;
-  --creative: #f3e1f5;
+  --bg:#f6f7f5;
+  --card:#ffffff;
+  --text:#2f2f2f;
+  --muted:#7a7a7a;
+  --selfcare:#fff7c2;
+  --health:#d9e7c9;
+  --work:#e6d8f2;
+  --family:#dff0d8;
+  --household:#efe6d8;
+  --finance:#e2f0e8;
+  --creative:#f3e1f5;
 }
 body {margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);}
 header {padding:16px;text-align:center;}
 header h1 {margin:0;font-size:1.4rem;}
 header p {margin:4px 0 0;color:var(--muted);font-size:0.9rem;}
+#weekDisplay {font-weight:bold;margin-top:4px;}
 .calendar {display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px;}
 .column {display:flex;flex-direction:column;gap:8px;}
 .column h3 {margin:4px 0 8px;font-size:0.9rem;color:var(--muted);}
@@ -44,6 +45,7 @@ label {font-size:0.8rem;color:var(--muted);}
 input,select,textarea,button {padding:8px;border-radius:8px;border:1px solid #ddd;font-size:0.9rem;}
 .save {background:#2f7d7b;color:white;border:none;}
 .delete {background:#d9534f;color:white;border:none;}
+.currentWeek {border:2px solid #2f7d7b;border-radius:14px;}
 </style>
 </head>
 <body>
@@ -51,13 +53,13 @@ input,select,textarea,button {padding:8px;border-radius:8px;border:1px solid #dd
 <header>
 <h1>Mein achtsamer Wochenkalender</h1>
 <p>Links meine Todos · rechts alles, was ich im Blick behalte</p>
+<div id="weekDisplay"></div>
 </header>
 
 <div style="display:flex;justify-content:center;gap:8px;margin-bottom:10px;">
   <button onclick="changeWeek(-1)">◀</button>
   <button onclick="goToToday()">Heute</button>
   <button onclick="changeWeek(1)">▶</button>
-  <span id="weekLabel" style="margin-left:12px;font-weight:bold;"></span>
 </div>
 
 <div class="calendar" id="calendar"></div>
@@ -97,22 +99,21 @@ input,select,textarea,button {padding:8px;border-radius:8px;border:1px solid #dd
 </div>
 
 <script>
-const calendar = document.getElementById('calendar');
-const modal = document.getElementById('modal');
-const modalTitle = document.getElementById('modalTitle');
-const dayPicker = document.getElementById('dayPicker');
-const deleteBtn = document.getElementById('deleteEvent');
-const weekLabel = document.getElementById('weekLabel');
+const calendar=document.getElementById('calendar');
+const modal=document.getElementById('modal');
+const modalTitle=document.getElementById('modalTitle');
+const dayPicker=document.getElementById('dayPicker');
+const deleteBtn=document.getElementById('deleteEvent');
+const weekDisplay=document.getElementById('weekDisplay');
 
-let activeEvent = null;
-let draggedEvent = null;
-let weekOffset = 0;
+let activeEvent=null;
+let draggedEvent=null;
+let tasks=JSON.parse(localStorage.getItem('tasks')||'[]');
+let currentMonday=getMonday(new Date());
 
 const weekdays=['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
-let tasks = JSON.parse(localStorage.getItem('tasks')||'[]');
-
-const leftCol = document.createElement('div');
-const rightCol = document.createElement('div');
+const leftCol=document.createElement('div');
+const rightCol=document.createElement('div');
 leftCol.className='column';
 rightCol.className='column';
 leftCol.innerHTML='<h3>Meine Todos</h3>';
@@ -142,6 +143,16 @@ weekdays.forEach((name,index)=>{
   dayPicker.appendChild(pick);
 });
 
+function getMonday(d){
+  const date=new Date(d);
+  const day=date.getDay();
+  const diff=(day===0? -6 : 1-day);
+  date.setDate(date.getDate()+diff);
+  return date;
+}
+
+function formatDate(d){return `${d.getDate()}.${d.getMonth()+1}.${d.getFullYear()}`;}
+
 function selectDay(day,btn){
   document.getElementById('day').value=day;
   [...dayPicker.children].forEach(b=>b.style.opacity=0.4);
@@ -157,7 +168,7 @@ function enableDrop(day){
       const t=tasks.find(x=>x.id==draggedEvent.dataset.id);
       t.day=day.dataset.day;
       t.column=draggedEvent.dataset.type;
-      t.weekOffset=weekOffset;
+      t.monday=currentMonday.getTime();
       saveTasks();
     }
   };
@@ -187,7 +198,7 @@ function openModal(eventEl=null){
   }
 }
 
-modal.onclick=e=>{if(e.target===modal) modal.style.display='none';}
+modal.onclick=e=>{if(e.target===modal)modal.style.display='none';}
 
 saveEvent.onclick=()=>{
   const titleVal=title.value;
@@ -206,7 +217,6 @@ saveEvent.onclick=()=>{
     eventEl.dataset.id=Date.now();
     eventEl.ondragstart=e=>{draggedEvent=eventEl;e.dataTransfer.effectAllowed='move';};
     eventEl.ondragend=()=>draggedEvent=null;
-    eventEl.onclick=()=>openModal(eventEl);
   }
 
   eventEl.textContent=titleVal;
@@ -216,19 +226,11 @@ saveEvent.onclick=()=>{
   eventEl.dataset.type=typeVal;
   eventEl.dataset.day=dayNumber;
   eventEl.dataset.done=doneVal;
-  eventEl.dataset.weekOffset=weekOffset;
-  eventEl.classList.toggle('done',doneVal);
+  eventEl.dataset.monday=currentMonday.getTime();
 
-  if(!tasks.find(t=>t.id==eventEl.dataset.id)){
-    tasks.push({
-      id:eventEl.dataset.id,title:titleVal,day:dayNumber,
-      category:categoryVal,type:typeVal,note:noteVal,
-      done:doneVal,weekOffset:weekOffset
-    });
-  } else {
-    const t=tasks.find(x=>x.id==eventEl.dataset.id);
-    Object.assign(t,{title:titleVal,day:dayNumber,category:categoryVal,type:typeVal,note:noteVal,done:doneVal,weekOffset:weekOffset});
-  }
+  const existing=tasks.find(t=>t.id==eventEl.dataset.id);
+  if(existing) Object.assign(existing,{title:titleVal,day:dayNumber,category:categoryVal,type:typeVal,note:noteVal,done:doneVal,monday:currentMonday.getTime()});
+  else tasks.push({id:eventEl.dataset.id,title:titleVal,day:dayNumber,category:categoryVal,type:typeVal,note:noteVal,done:doneVal,monday:currentMonday.getTime()});
 
   saveTasks();
   render();
@@ -247,41 +249,54 @@ deleteBtn.onclick=()=>{
 };
 
 function render(){
-  weekLabel.textContent='Woche '+weekOffset;
+  const today=new Date();
+  weekDisplay.textContent=`${formatDate(currentMonday)} – ${formatDate(new Date(currentMonday.getTime()+6*24*60*60*1000))}`;
+
   leftCol.querySelectorAll('.day').forEach(d=>d.innerHTML=`<div class="day-number">${weekdays[d.dataset.day-1]}</div>`);
   rightCol.querySelectorAll('.day').forEach(d=>d.innerHTML=`<div class="day-number">${weekdays[d.dataset.day-1]}</div>`);
 
   leftCol.querySelectorAll('.day').forEach(d=>{d.querySelectorAll('.event').forEach(e=>e.remove());});
   rightCol.querySelectorAll('.day').forEach(d=>{d.querySelectorAll('.event').forEach(e=>e.remove());});
 
-  [...tasks.filter(t=>parseInt(t.weekOffset)===weekOffset)]
-    .sort((a,b)=>a.done-b.done)
-    .forEach(t=>{
-      const col=t.type==='info'?rightCol:leftCol;
-      const dayBox=col.querySelector(`.day[data-day='${t.day}']`);
-      const div=document.createElement('div');
-      div.className=`event ${t.category}`;
-      div.draggable=true;
-      div.dataset.id=t.id;
-      div.dataset.title=t.title;
-      div.dataset.category=t.category;
-      div.dataset.type=t.type;
-      div.dataset.day=t.day;
-      div.dataset.done=t.done;
-      div.dataset.note=t.note;
-      div.dataset.weekOffset=t.weekOffset;
-      div.classList.toggle('done',t.done);
-      div.textContent=t.title;
-      div.ondragstart=e=>{draggedEvent=div;e.dataTransfer.effectAllowed='move';};
-      div.ondragend=()=>draggedEvent=null;
-      div.onclick=()=>openModal(div);
-      dayBox.appendChild(div);
-    });
+  // Kopieren offener Tasks vom vorherigen Montag auf neuen Montag
+  tasks.filter(t=>!t.done && t.monday<currentMonday.getTime()).forEach(t=>{
+    if(!tasks.some(x=>x.title===t.title && x.monday===currentMonday.getTime() && x.day==1 && x.type==t.type)){
+      const copy=Object.assign({},t);
+      copy.id=Date.now()+Math.random();
+      copy.day=1;
+      copy.monday=currentMonday.getTime();
+      tasks.push(copy);
+    }
+  });
+
+  tasks.filter(t=>t.monday===currentMonday.getTime()).sort((a,b)=>a.done-b.done).forEach(t=>{
+    const col=t.type==='info'?rightCol:leftCol;
+    const dayBox=col.querySelector(`.day[data-day='${t.day}']`);
+    const div=document.createElement('div');
+    div.className=`event ${t.category}`;
+    div.draggable=true;
+    div.dataset.id=t.id;
+    div.dataset.title=t.title;
+    div.dataset.category=t.category;
+    div.dataset.type=t.type;
+    div.dataset.day=t.day;
+    div.dataset.done=t.done;
+    div.dataset.note=t.note;
+    div.dataset.monday=t.monday;
+    div.classList.toggle('done',t.done);
+    div.textContent=t.title;
+    div.ondragstart=e=>{draggedEvent=div;e.dataTransfer.effectAllowed='move';};
+    div.ondragend=()=>draggedEvent=null;
+    div.onclick=()=>openModal(div);
+    dayBox.appendChild(div);
+  });
+
+  saveTasks();
 }
 
 function saveTasks(){localStorage.setItem('tasks',JSON.stringify(tasks));}
-function changeWeek(n){weekOffset+=n;render();}
-function goToToday(){weekOffset=0;render();}
+function changeWeek(n){currentMonday=new Date(currentMonday.getTime()+n*7*24*60*60*1000);render();}
+function goToToday(){currentMonday=getMonday(new Date());render();}
 
 render();
 </script>
